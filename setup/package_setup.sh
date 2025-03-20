@@ -1,6 +1,9 @@
 #!/bin/bash
 
-cd $WS_PATH/src
+# Define workspace path
+WS_PATH=~/husky_ws_3
+
+cd $WS_PATH
 
 rosdep update
 rosdep install --from-paths src --ignore-src -r -y 
