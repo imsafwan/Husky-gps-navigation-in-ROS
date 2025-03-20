@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define workspace path
-WS_PATH=~/husky_ws_2
+WS_PATH=~/husky_ws_3
 
 echo "Creating workspace at $WS_PATH..."
 mkdir -p $WS_PATH/src
@@ -31,14 +31,3 @@ cd $WS_PATH/src/navigation2 && git checkout humble
 
 echo "Setup complete!"
 
-rosdep update
-rosdep install --from-paths src --ignore-src -r -y 
-
-
-colcon build --symlink-install 
-
-source $WS_PATH/install/setup.bash
-
-
-echo 'source $WS_PATH/install/setup.bash' >> ~/.bashrc  
-source ~/.bashrc
