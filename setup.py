@@ -15,7 +15,7 @@ setup(
     entry_points={
         'console_scripts': [
             'gps_navigation = husky_navigation_pkg.gps_navigation:main',
-            'simple_gps_navigation = husky_navigation_pkg.simple_gps_navigation:main',
+            'simple_gps_navigation_fix_speed = husky_navigation_pkg.simple_gps_navigation_fix_speed:main',
             'map_plot = husky_navigation_pkg.map_plot:main',
             'map_plot_v2 = husky_navigation_pkg.map_plot_v2:main',
         ],

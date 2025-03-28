@@ -124,20 +124,20 @@ class MapClickPublisher(Node):
         # Terminate existing process if running
         if self.gps_navigation_process is not None:
             self.get_logger().info("Stopping any existing gps_navigation process...")
-            subprocess.run(["pkill", "-f", "ros2 run husky_navigation_pkg simple_gps_navigation"], stderr=subprocess.DEVNULL)
+            subprocess.run(["pkill", "-f", "ros2 run husky_navigation_pkg simple_gps_navigation_fix_speed"], stderr=subprocess.DEVNULL)
             self.get_logger().info("Waiting for process to terminate...")
             subprocess.run(["sleep", "2"])
         # Start a new process in a separate terminal
         self.get_logger().info("Launching new gps_navigation process in a separate terminal...")
         if os.name == "nt":  # Windows
             self.gps_navigation_process = subprocess.Popen(
-                ["start", "cmd", "/c", "ros2 run husky_navigation_pkg simple_gps_navigation.py"], shell=True
+                ["start", "cmd", "/c", "ros2 run husky_navigation_pkg simple_gps_navigation_fix_speed.py"], shell=True
             )
         else:  # Linux/macOS
             self.gps_navigation_process = subprocess.Popen(
                 [
                     "gnome-terminal", "--", "bash", "-c",
-                    "source /opt/ros/humble/setup.bash && source ~/clearpath_ws/install/setup.bash && ros2 run husky_navigation_pkg simple_gps_navigation; exec bash"
+                    "source /opt/ros/humble/setup.bash && source ~/clearpath_ws/install/setup.bash && ros2 run husky_navigation_pkg simple_gps_navigation_fix_speed; exec bash"
                 ]
             )
 
