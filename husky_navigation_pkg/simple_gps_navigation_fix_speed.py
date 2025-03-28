@@ -29,7 +29,7 @@ def euler_from_quaternion(quat):
 
 
 def load_namespace():
-    yaml_path = "/home/safwan/clearpath/robot.yaml"
+    yaml_path = os.path.expanduser("~/clearpath/robot.yaml")
     try:
         with open(yaml_path, 'r') as file:
             config = yaml.safe_load(file)
