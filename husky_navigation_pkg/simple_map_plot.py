@@ -47,14 +47,30 @@ class MapClickPublisher(Node):
 
         # Subscriber for Husky's GPS
         self.create_subscription(NavSatFix, f'{namespace}/sensors/gps_0/fix', self.husky_gps_callback, 10)
+        
+        map_area = "spot1"  # Default map area
+        self.map_bounds = {}
+        
+        if map_area == "spot1":
+            self.map_bounds["top_left"] = (41.870008, -87.648743)
+            self.map_bounds["bottom_right"] = (41.869698, -87.648438)
+        elif map_area == "spot2":       
+            self.map_bounds["top_left"] = (41.871492, -87.648932)
+            self.map_bounds["bottom_right"] = (41.871018, -87.648314)
+        elif map_area == "spot3":                                       
+            self.map_bounds["top_left"] = (41.873783, -87.649809)
+            self.map_bounds["bottom_right"] = (41.873130, -87.649130)
+        
+        
+         # T_L =  (41.873783, -87.649809) (spot3), (41.871492, -87.648932)(spot2), (41.870008, -87.648743) (spot1) (latitude, longitude) of top-left corner
+         # B_R =(41.873130, -87.649130) (spot3), (41.871018, -87.648314) (spot2), (41.869698, -87.648438) (spot1) (latitude, longitude) of bottom-right corner
 
-        
-        self.map_bounds = {
-    "top_left": (41.870008, -87.648743),       # (latitude, longitude) of top-left corner
-    "bottom_right": (41.869698, -87.648438)    # (latitude, longitude) of bottom-right corner
-}
-        
-        image_path = "/home/safwan/clearpath_ws/src/husky_navigation_pkg/Assets/uic_map_1.png"  # Path to my map image
+        if map_area == "spot1":
+            image_path = "/home/safwan/clearpath_ws/src/husky_navigation_pkg/Assets/uic_map_1.png"  # Path to my map image
+        elif map_area == "spot2":
+            image_path = "/home/safwan/clearpath_ws/src/husky_navigation_pkg/Assets/spot2.png"
+        elif map_area == "spot3":
+            image_path = "/home/safwan/clearpath_ws/src/husky_navigation_pkg/Assets/spot3.png"
         self.map_image = plt.imread(image_path)
         
         # Variables for Husky position and current target (from mouse click)
