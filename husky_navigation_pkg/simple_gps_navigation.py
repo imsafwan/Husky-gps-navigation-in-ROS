@@ -38,7 +38,7 @@ def load_namespace():
         print(f"Error loading namespace from YAML: {e}")
         return ""  # Fallback
 
-
+        
 class GPSNavigator(Node):
     def __init__(self):
         super().__init__('simple_gps_navigation')
@@ -50,33 +50,29 @@ class GPSNavigator(Node):
             self.get_logger().info("No namespace loaded. Using default topics.")
 
         # Parameters
-        self.declare_parameter("target_lat", 41.86987886952341)
-        self.declare_parameter("target_lon", -87.64843775598163)
         self.k_linear = 0.8
         self.k_angular = 1.5
         self.linear_max = 0.8
         self.angular_max = 1.0
         self.arrival_threshold = 0.8
 
-        self.target_lat = self.get_parameter("target_lat").value
-        self.target_lon = self.get_parameter("target_lon").value
-
         # State
         self.current_utm = None
         self.yaw = None
-
-        # Target UTM
-        target_utm = utm.from_latlon(self.target_lat, self.target_lon)
-        self.target_x, self.target_y = target_utm[0], target_utm[1]
+        self.target_x = None
+        self.target_y = None
+        self.target_received = False
 
         # Topics
         gps_topic = f"/{namespace}/sensors/gps_0/fix" if namespace else "/gps/fix"
         imu_topic = f"/{namespace}/sensors/imu_0/data" if namespace else "/imu/data"
         cmd_topic = f"/{namespace}/cmd_vel" if namespace else "/cmd_vel"
+        target_topic = f"/{namespace}/target_gps_coord" if namespace else "/target_gps_coord"
 
         # Publishers & Subscribers
         self.create_subscription(NavSatFix, gps_topic, self.gps_callback, 10)
         self.create_subscription(Imu, imu_topic, self.imu_callback, 10)
+        self.create_subscription(NavSatFix, target_topic, self.target_callback, 10)
         self.cmd_pub = self.create_publisher(Twist, cmd_topic, 10)
 
         # Timer
@@ -95,8 +91,17 @@ class GPSNavigator(Node):
         ])
         self.yaw = yaw
 
+    def target_callback(self, msg):
+        utm_coord = utm.from_latlon(msg.latitude, msg.longitude)
+        self.target_x, self.target_y = utm_coord[0], utm_coord[1]
+        self.target_received = True
+        self.get_logger().info(f"Received new target: ({self.target_x}, {self.target_y})")
+
     def run(self):
-        print("Running navigation loop")
+        if not self.target_received:
+            print("Waiting for target GPS coordinate...")
+            return
+
         if self.current_utm and self.yaw is not None:
             dx = self.target_x - self.current_utm[0]
             dy = self.target_y - self.current_utm[1]
@@ -114,8 +119,9 @@ class GPSNavigator(Node):
                 cmd.angular.z = 0.0
                 self.cmd_pub.publish(cmd)
                 self.timer.cancel()
+                self.destroy_node()
                 rclpy.shutdown()
-                return
+                sys.exit(0)
 
             print(f"Distance: {distance:.2f}, Yaw Error: {yaw_error:.2f}")
             print(f"Current UTM: {self.current_utm}, Target UTM: ({self.target_x}, {self.target_y})")
