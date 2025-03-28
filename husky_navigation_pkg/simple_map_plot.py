@@ -19,9 +19,8 @@ import logging
 
 # Load namespace dynamically from YAML
 def load_namespace():
+    yaml_path = os.path.expanduser("~/clearpath/robot.yaml")
     try:
-        pkg_share_dir = get_package_share_directory('clearpath')
-        yaml_path = os.path.join(pkg_share_dir,'robot.yaml')
         with open(yaml_path, 'r') as file:
             config = yaml.safe_load(file)
             return config['system']['ros2']['namespace']
@@ -44,7 +43,7 @@ class MapClickPublisher(Node):
         self.gps_navigation_process = None
 
         # Publisher for target GPS coordinates
-        self.gps_pub = self.create_publisher(NavSatFix, "/target_gps_coord", 10)
+        self.gps_pub = self.create_publisher(NavSatFix, f'{namespace}/target_gps_coord', 10)
 
         # Subscriber for Husky's GPS
         self.create_subscription(NavSatFix, f'{namespace}/sensors/gps_0/fix', self.husky_gps_callback, 10)
@@ -125,7 +124,7 @@ class MapClickPublisher(Node):
         # Terminate existing process if running
         if self.gps_navigation_process is not None:
             self.get_logger().info("Stopping any existing gps_navigation process...")
-            subprocess.run(["pkill", "-f", "ros2 run husky_navigation_pkg gps_navigation"], stderr=subprocess.DEVNULL)
+            subprocess.run(["pkill", "-f", "ros2 run husky_navigation_pkg simple_gps_navigation"], stderr=subprocess.DEVNULL)
             self.get_logger().info("Waiting for process to terminate...")
             subprocess.run(["sleep", "2"])
         # Start a new process in a separate terminal
