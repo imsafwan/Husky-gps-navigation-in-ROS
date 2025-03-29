@@ -48,7 +48,7 @@ class MapClickPublisher(Node):
         # Subscriber for Husky's GPS
         self.create_subscription(NavSatFix, f'{namespace}/sensors/gps_0/fix', self.husky_gps_callback, 10)
         
-        map_area = "spot1"  # Default map area
+        map_area = "spot3"  # Default map area
         self.map_bounds = {}
         
         if map_area == "spot1":
