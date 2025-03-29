@@ -9,6 +9,7 @@ import yaml
 from sensor_msgs.msg import NavSatFix
 import matplotlib.pyplot as plt
 from std_srvs.srv import Trigger
+import time
 
 def load_namespace():
     yaml_path = os.path.expanduser("~/clearpath/robot.yaml")
@@ -39,7 +40,7 @@ class MapClickPublisher(Node):
         self.navigation_client = self.create_client(Trigger, f"{namespace}/start_navigation")
 
         # Map area setup
-        map_area = "spot3"
+        map_area = "spot1"  # Default map area
         self.map_bounds = {}
 
         if map_area == "spot1":
@@ -88,7 +89,7 @@ class MapClickPublisher(Node):
 
         # Timers
         self.create_timer(0.1, self.update_husky_marker)
-        self.create_timer(1.0, self.publish_target_gps)  # Optional continuous publishing
+        #self.create_timer(1.0, self.publish_target_gps)  # Optional continuous publishing
 
     def on_click(self, event):
         if event.xdata is not None and event.ydata is not None:
@@ -102,8 +103,12 @@ class MapClickPublisher(Node):
             self.target_marker.set_data([event.xdata], [event.ydata])
             self.fig.canvas.draw_idle()
 
-            # Call navigation service after target is set
+            # Publish target and start navigation
+            self.publish_target_gps()
             self.call_start_navigation_service()
+            
+
+            
 
     def publish_target_gps(self):
         if self.current_target is not None:

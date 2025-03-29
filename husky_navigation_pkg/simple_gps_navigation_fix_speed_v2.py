@@ -9,7 +9,7 @@ import sys
 from sensor_msgs.msg import NavSatFix, Imu
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Trigger
-
+import os
 
 def euler_from_quaternion(quat):
     x, y, z, w = quat
@@ -138,14 +138,16 @@ class GPSNavigator(Node):
             cmd = Twist()
 
             if distance < self.arrival_threshold:
-                self.get_logger().info("Target Reached. Shutting down the node...")
+                self.get_logger().info("Target Reached.")
                 cmd.linear.x = 0.0
                 cmd.angular.z = 0.0
                 self.cmd_pub.publish(cmd)
-                self.timer.cancel()
-                self.destroy_node()
-                rclpy.shutdown()
-                sys.exit(0)
+
+                # Reset state so next click will work
+                self.target_received = False
+                self.navigation_started = False
+                self.yaw_aligned = False
+                return
 
             if not self.yaw_aligned:
                 if yaw_error_deg > self.yaw_threshold_deg:
